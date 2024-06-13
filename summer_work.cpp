@@ -43,17 +43,16 @@ struct sp {
 } *spisok; // шаблон, глобальное описание структуры двустороннего списка
 
 
-int USERS_NC; // объявление глобальной переменной, обозначающей количество позиций в списке пользователей
 int GAMES_NC; // объявление глобальной переменной, обозначающей количество позиций в списке видеоигр
 // шаблоны функций
 int menu(int); // функция меню
-void Users_games(struct User*, struct Game*); // Функция просмотра приобретенных пользователем видеоигр
-void Who_has_more(struct User*); // Функция поиска пользователя с наибольшим количеством видеоигр
-void Who_has_prog(struct User*, struct Game*); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
-void Alf_sp(struct User*); // Функция формирования алфавитного и обратного списков
+void Users_games(struct User*, struct Game*, int USERS_NC); // Функция просмотра приобретенных пользователем видеоигр
+void Who_has_more(struct User*, int USERS_NC); // Функция поиска пользователя с наибольшим количеством видеоигр
+void Who_has_prog(struct User*, struct Game*, int USERS_NC); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
+void Alf_sp(struct User*, int USERS_NC); // Функция формирования алфавитного и обратного списков
 void vstavka(struct User*, char*, char*, long); // функция вставки в список
-void diagram(struct User*); // Функция составления диаграммы (показывает соотношение количества видеоигр у пользователей)
-void dif_question(User*); // Функция проверки наличия пользователей из России с одинаковым количеством видеоигр
+void diagram(struct User*, int USERS_NC); // Функция составления диаграммы (показывает соотношение количества видеоигр у пользователей)
+void dif_question(User*, int USERS_NC); // Функция проверки наличия пользователей из России с одинаковым количеством видеоигр
 
 
 int main(array<System::String^>^ args)
@@ -75,6 +74,8 @@ int main(array<System::String^>^ args)
     };
     // пустая линия для создания меню
     char BlankLine[100] = "                                                                            ";
+
+    int USERS_NC; // объявление переменной, обозначающей количество позиций в списке пользователей
 
 
     // Чтение файла Users.dat
@@ -148,12 +149,12 @@ int main(array<System::String^>^ args)
         printf(BlankLine);
         n = menu(7); // выбор вопроса в меню
         switch (n) {
-        case 1: Users_games(users, games); break;
-        case 2: Who_has_more(users); break;
-        case 3: Who_has_prog(users, games); break;
-        case 4: Alf_sp(users); break;
-        case 5: dif_question(users); break;
-        case 6: diagram(users); break;
+        case 1: Users_games(users, games, USERS_NC); break;
+        case 2: Who_has_more(users, USERS_NC); break;
+        case 3: Who_has_prog(users, games, USERS_NC); break;
+        case 4: Alf_sp(users, USERS_NC); break;
+        case 5: dif_question(users, USERS_NC); break;
+        case 6: diagram(users, USERS_NC); break;
         case 7: exit(0);
         }
     } // конец while (1)
@@ -204,7 +205,7 @@ int menu(int n)
     exit(0);
 }
 
-void Users_games(struct User* users, struct Game* games) {
+void Users_games(struct User* users, struct Game* games, int USERS_NC) {
     char nic[20]; // строка в которую пользователь записывает ник игрока 
     User* find; // переменная для найденного игрока
     Console::Clear();
@@ -243,7 +244,7 @@ void Users_games(struct User* users, struct Game* games) {
     getch();
 }
 
-void Who_has_more(struct User* users) {
+void Who_has_more(struct User* users, int USERS_NC) {
     Console::CursorLeft = 11;
     Console::CursorTop = 15;
     Console::BackgroundColor = ConsoleColor::DarkGray;
@@ -263,7 +264,7 @@ void Who_has_more(struct User* users) {
     getch();
 };
 
-void Who_has_prog(struct User* users, struct Game* games) {
+void Who_has_prog(struct User* users, struct Game* games, int USERS_NC) {
     Console::CursorLeft = 11;
     Console::CursorTop = 15;
     Console::BackgroundColor = ConsoleColor::DarkGray;
@@ -312,7 +313,7 @@ void Who_has_prog(struct User* users, struct Game* games) {
     getch();
 }
 
-void Alf_sp(User* users) {
+void Alf_sp(User* users, int USERS_NC) {
     struct sp* nt; // указатель следущего элемента списка
     struct sp* z; // указатель предыдущего элемента списка
     struct sp* spis; // указатель начала списка
@@ -370,7 +371,7 @@ void vstavka(struct User* users, char* nic, char* country, long numb)
     return;
 }
 
-void dif_question(User* users) {
+void dif_question(User* users, int USERS_NC) {
 
     for (int i = 0; i < USERS_NC; i++)
     {
@@ -397,7 +398,7 @@ void dif_question(User* users) {
     }
 }
 
-void diagram(struct User* users)
+void diagram(struct User* users, int USERS_NC)
 {
     struct sp* nt;
     int len, NColor;
