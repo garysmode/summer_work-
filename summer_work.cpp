@@ -43,12 +43,12 @@ struct sp {
 } *spisok; // шаблон, глобальное описание структуры двустороннего списка
 
 
-int GAMES_NC; // объявление глобальной переменной, обозначающей количество позиций в списке видеоигр
+
 // шаблоны функций
 int menu(int); // функция меню
 void Users_games(struct User*, struct Game*, int USERS_NC); // Функция просмотра приобретенных пользователем видеоигр
 void Who_has_more(struct User*, int USERS_NC); // Функция поиска пользователя с наибольшим количеством видеоигр
-void Who_has_prog(struct User*, struct Game*, int USERS_NC); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
+void Who_has_prog(struct User*, struct Game*, int USERS_NC, int GAMES_NC); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
 void Alf_sp(struct User*, int USERS_NC); // Функция формирования алфавитного и обратного списков
 void vstavka(struct User*, char*, char*, long); // функция вставки в список
 void diagram(struct User*, int USERS_NC); // Функция составления диаграммы (показывает соотношение количества видеоигр у пользователей)
@@ -76,7 +76,7 @@ int main(array<System::String^>^ args)
     char BlankLine[100] = "                                                                            ";
 
     int USERS_NC; // объявление переменной, обозначающей количество позиций в списке пользователей
-
+    int GAMES_NC; // объявление глобальной переменной, обозначающей количество позиций в списке видеоигр
 
     // Чтение файла Users.dat
     FILE* in; // объявление переменной под файл
@@ -151,7 +151,7 @@ int main(array<System::String^>^ args)
         switch (n) {
         case 1: Users_games(users, games, USERS_NC); break;
         case 2: Who_has_more(users, USERS_NC); break;
-        case 3: Who_has_prog(users, games, USERS_NC); break;
+        case 3: Who_has_prog(users, games, USERS_NC, GAMES_NC); break;
         case 4: Alf_sp(users, USERS_NC); break;
         case 5: dif_question(users, USERS_NC); break;
         case 6: diagram(users, USERS_NC); break;
@@ -264,7 +264,7 @@ void Who_has_more(struct User* users, int USERS_NC) {
     getch();
 };
 
-void Who_has_prog(struct User* users, struct Game* games, int USERS_NC) {
+void Who_has_prog(struct User* users, struct Game* games, int USERS_NC, int GAMES_NC) {
     Console::CursorLeft = 11;
     Console::CursorTop = 15;
     Console::BackgroundColor = ConsoleColor::DarkGray;
