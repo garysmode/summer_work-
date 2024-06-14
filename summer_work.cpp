@@ -40,27 +40,29 @@ struct sp {
     long number_of_games; // количество купленных видеоигр
     struct sp* sled; // указатель на следующий элемент в списке
     struct sp* pred; // указатель на предыдущий элемент в списке
-} *spisok; // шаблон, глобальное описание структуры двустороннего списка
+}; // шаблон, глобальное описание структуры двустороннего списка
 
 
 
 // шаблоны функций
 int menu(int); // функция меню
-void Users_games(struct User*, struct Game*, int USERS_NC); // Функция просмотра приобретенных пользователем видеоигр
-void Who_has_more(struct User*, int USERS_NC); // Функция поиска пользователя с наибольшим количеством видеоигр
-void Who_has_prog(struct User*, struct Game*, int USERS_NC, int GAMES_NC); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
-void Alf_sp(struct User*, int USERS_NC); // Функция формирования алфавитного и обратного списков
-void vstavka(struct User*, char*, char*, long); // функция вставки в список
-void diagram(struct User*, int USERS_NC); // Функция составления диаграммы (показывает соотношение количества видеоигр у пользователей)
-void dif_question(User*, int USERS_NC); // Функция проверки наличия пользователей из России с одинаковым количеством видеоигр
+void Users_games(struct User*, struct Game*, int); // Функция просмотра приобретенных пользователем видеоигр
+void Who_has_more(struct User*, int); // Функция поиска пользователя с наибольшим количеством видеоигр
+void Who_has_prog(struct User*, struct Game*, int, int); // Функция поиска соответствия (проверяется наличие доступа к видеоигре у пользователей)
+void Alf_sp(struct User*, int, sp**); // Функция формирования алфавитного и обратного списков
+void vstavka(struct User*, char*, char*, long, sp**); // функция вставки в список
+void diagram(struct User*, int, sp**); // Функция составления диаграммы (показывает соотношение количества видеоигр у пользователей)
+void dif_question(User*, int); // Функция проверки наличия пользователей из России с одинаковым количеством видеоигр
 
+int WindowWidth = 1024;
+int WindowHeight = 100;
 
 int main(array<System::String^>^ args)
 {
     setlocale(LC_CTYPE, "Russian"); // установка кодировки, поддерживающей Руссский язык
     Console::CursorVisible::set(false); // отключение видимости курсора
-    Console::BufferHeight = Console::WindowHeight; // установка высоты буфера равной высоте окна
-    Console::BufferWidth = Console::WindowWidth; // установка ширины буфера равной высоте окна
+    Console::BufferHeight = WindowHeight; // установка высоты буфера равной высоте окна
+    Console::BufferWidth = WindowWidth; // установка ширины буфера равной высоте окна
 
     //задание пунктов меню
     char dan[7][75] = {
@@ -77,10 +79,10 @@ int main(array<System::String^>^ args)
 
     int USERS_NC; // объявление переменной, обозначающей количество позиций в списке пользователей
     int GAMES_NC; // объявление глобальной переменной, обозначающей количество позиций в списке видеоигр
-
+    struct sp *spisok = 0;
     // Чтение файла Users.dat
     FILE* in; // объявление переменной под файл
-    User* users; // объявление переменной под масив данных
+    User* users = 0; // объявление переменной под масив данных
     if ((in = fopen("Users.dat", "r")) == NULL) // открытие файла
     {
         // в случае неудачного открытия файла
@@ -110,7 +112,7 @@ int main(array<System::String^>^ args)
 
     //чтение файла Games.dat
     FILE* games_file; // объявление переменной под файл
-    Game* games; // объявление переменной под масив данных
+    Game* games = 0; // объявление переменной под масив данных
     if ((games_file = fopen("Games.dat", "r")) == NULL) // открытие файла
     {
         printf("\nФайл Games.dat не открыт !");
@@ -152,9 +154,9 @@ int main(array<System::String^>^ args)
         case 1: Users_games(users, games, USERS_NC); break;
         case 2: Who_has_more(users, USERS_NC); break;
         case 3: Who_has_prog(users, games, USERS_NC, GAMES_NC); break;
-        case 4: Alf_sp(users, USERS_NC); break;
+        case 4: Alf_sp(users, USERS_NC, &spisok); break;
         case 5: dif_question(users, USERS_NC); break;
-        case 6: diagram(users, USERS_NC); break;
+        case 6: diagram(users, USERS_NC, &spisok); break;
         case 7: exit(0);
         }
     } // конец while (1)
@@ -313,15 +315,15 @@ void Who_has_prog(struct User* users, struct Game* games, int USERS_NC, int GAME
     getch();
 }
 
-void Alf_sp(User* users, int USERS_NC) {
+void Alf_sp(User* users, int USERS_NC, sp** spisok) {
     struct sp* nt; // указатель следущего элемента списка
     struct sp* z; // указатель предыдущего элемента списка
-    struct sp* spis; // указатель начала списка
-    if (!spisok) // условие составления нового списка
+    //struct sp* spis; // указатель начала списка
+    if (!*spisok) // условие составления нового списка
     {
         for (int i = 0; i < USERS_NC; i++) // перебор всех пользователей
         {
-            vstavka(users, users[i].nicname, users[i].country, users[i].number_of_games); // вставка пользователя в список
+            vstavka(users, users[i].nicname, users[i].country, users[i].number_of_games, spisok); // вставка пользователя в список
         }
     }
 
@@ -331,7 +333,7 @@ void Alf_sp(User* users, int USERS_NC) {
     // вывод алфавитного и обратного списков
     printf("\n Алфавитный список пользователей");
     printf("\n ===============================\n");
-    for (nt = spisok, z = 0; nt != 0; z = nt, nt = nt->sled)
+    for (nt = *spisok, z = 0; nt != 0; z = nt, nt = nt->sled)
         printf("\n %-20s %-25s", nt->nicname, nt->country);
 
     int cursortop = 3; // переменная расположения курсора по вертикали
@@ -350,10 +352,10 @@ void Alf_sp(User* users, int USERS_NC) {
     getch();
 }
 
-void vstavka(struct User* users, char* nic, char* country, long numb)
+void vstavka(struct User* users, char* nic, char* country, long numb, sp** spisok)
 {
     struct sp* nov, * nt, * z = 0;
-    for (nt = spisok;
+    for (nt = *spisok;
         nt != 0 && strcmp(nt->nicname, nic) < 0;
         z = nt, nt = nt->sled);
 
@@ -364,7 +366,7 @@ void vstavka(struct User* users, char* nic, char* country, long numb)
     nov->number_of_games = numb;
     strcpy(nov->country, country);
 
-    if (!z) spisok = nov;
+    if (!z) *spisok = nov;
     else z->sled = nov;
     if (nt) nt->pred = nov;
 
@@ -398,7 +400,7 @@ void dif_question(User* users, int USERS_NC) {
     }
 }
 
-void diagram(struct User* users, int USERS_NC)
+void diagram(struct User* users, int USERS_NC, sp** spisok)
 {
     struct sp* nt;
     int len, NColor;
@@ -414,14 +416,14 @@ void diagram(struct User* users, int USERS_NC)
         sum = users[i].number_of_games + sum;
     }
 
-    if (!spisok)
+    if (!*spisok)
         for (int i = 0; i < USERS_NC; i++)
-            vstavka(users, users[i].nicname, users[i].country, users[i].number_of_games);
+            vstavka(users, users[i].nicname, users[i].country, users[i].number_of_games, spisok);
     Color = ConsoleColor::Black;
     NColor = 0;
 
     int i = 0;
-    for (nt = spisok; nt != 0; nt = nt->sled, i++)
+    for (nt = *spisok; nt != 0; nt = nt->sled, i++)
     {
         sprintf(str1, "%s", nt->nicname);
         sprintf(str2, "%3.1f%%", (nt->number_of_games * 100. / sum));
